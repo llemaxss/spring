@@ -1,12 +1,10 @@
-package com.gmail.llemaxiss.spring.book.entity;
+package com.gmail.llemaxiss.spring.magazine.entity;
 
 import com.gmail.llemaxiss.spring.common.entity.CommonEntity;
 import com.gmail.llemaxiss.spring.library.entity.Library;
-import com.gmail.llemaxiss.spring.person.entity.Person;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Where;
@@ -14,14 +12,21 @@ import org.hibernate.annotations.Where;
 import java.util.List;
 
 @Entity
-@Table(name = "spring_book")
+@Table(name = "spring_magazine")
 @Where(clause = "delete_ts IS NULL")
-public class Book extends CommonEntity {
+public class Magazine extends CommonEntity {
 	@Column(name = "name")
 	private String name;
 	
-	@ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
-	private List<Person> persons;
+	/**
+	 * Кастомная реализация ManyToMany через связь OneToMany,
+	 * где таблица со своими полями и составным ключом
+	 */
+	@OneToMany(
+		fetch = FetchType.LAZY,
+		mappedBy = "magazine"
+	)
+	private List<Library> libraries;
 	
 	public String getName() {
 		return name;
@@ -31,11 +36,11 @@ public class Book extends CommonEntity {
 		this.name = name;
 	}
 	
-	public List<Person> getPersons() {
-		return persons;
+	public List<Library> getLibraries() {
+		return libraries;
 	}
 	
-	public void setPersons(List<Person> persons) {
-		this.persons = persons;
+	public void setLibraries(List<Library> libraries) {
+		this.libraries = libraries;
 	}
 }

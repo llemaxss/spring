@@ -2,7 +2,12 @@ package com.gmail.llemaxiss.spring.person.service;
 
 import com.gmail.llemaxiss.spring.address.entity.Address;
 import com.gmail.llemaxiss.spring.book.entity.Book;
+import com.gmail.llemaxiss.spring.book.repos.BookRepository;
 import com.gmail.llemaxiss.spring.courseScore.enums.Course;
+import com.gmail.llemaxiss.spring.library.entity.Library;
+import com.gmail.llemaxiss.spring.library.repos.LibraryRepository;
+import com.gmail.llemaxiss.spring.magazine.entity.Magazine;
+import com.gmail.llemaxiss.spring.magazine.repos.MagazineRepository;
 import com.gmail.llemaxiss.spring.passport.entity.Passport;
 import com.gmail.llemaxiss.spring.passport.repos.PassportRepository;
 import com.gmail.llemaxiss.spring.person.dto.PersonDTO;
@@ -31,12 +36,19 @@ public class PersonServiceImpl implements PersonService {
 	private final PersonRepository personRepository;
 	private final PlaceOfBirthRepository placeOfBirthRepository;
 	private final PassportRepository passportRepository;
+	private final BookRepository bookRepository;
+	private final MagazineRepository magazineRepository;
+	private final LibraryRepository libraryRepository;
 
 	public PersonServiceImpl(PersonRepository personRepository, PlaceOfBirthRepository placeOfBirthRepository,
-													 PassportRepository passportRepository) {
+	                         PassportRepository passportRepository, BookRepository bookRepository,
+	                         MagazineRepository magazineRepository, LibraryRepository libraryRepository) {
 		this.personRepository = personRepository;
 		this.placeOfBirthRepository = placeOfBirthRepository;
 		this.passportRepository = passportRepository;
+		this.bookRepository = bookRepository;
+		this.magazineRepository = magazineRepository;
+		this.libraryRepository = libraryRepository;
 	}
 
 	@Override
@@ -88,6 +100,9 @@ public class PersonServiceImpl implements PersonService {
 		book2.setPersons(List.of(person));
 		
 		person.setBooks(List.of(book1, book2));
+		
+		bookRepository.save(book1);
+		bookRepository.save(book2);
 		// ---
 		
 		// ---
@@ -147,7 +162,26 @@ public class PersonServiceImpl implements PersonService {
 			));
 
 		personRepository.save(person);
-
+		
+		// ---
+		Magazine magazine1 = new Magazine();
+		Magazine magazine2 = new Magazine();
+		
+		magazine1.setName("Navigator of game world");
+		magazine2.setName("COOLS");
+		
+		magazineRepository.save(magazine1);
+		magazineRepository.save(magazine2);
+		// ---
+		
+		// ---
+		Library library1 = new Library(person, magazine1);
+		Library library2 = new Library(person, magazine2);
+		
+		libraryRepository.save(library1);
+		libraryRepository.save(library2);
+		// ---
+		
 		return person.getId();
 	}
 

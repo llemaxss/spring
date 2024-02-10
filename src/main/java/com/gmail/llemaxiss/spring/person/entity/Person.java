@@ -101,6 +101,13 @@ public class Person extends CommonEntity {
 		joinColumns = @JoinColumn(name = "person_id"),
 		inverseJoinColumns = @JoinColumn(name = "book_id")
 	)
+	/**
+	 * Чтобы сериализовать поле, то:
+	 * 1) Пишем тут поле которое ссылается на текущую сущность, и "hibernateLazyInitializer" если у нас LAZY-инициализация
+	 * 2) Пишем тут поле которое ссылается на текущую сущность, если у нас EAGER-инициализация
+	 * 3) ЛУЧШИЙ вариант - создавать свои DTO и заполнять их перед отдачей с контроллера
+	 */
+	@JsonIgnoreProperties(value = {"persons", "hibernateLazyInitializer"})
 	private List<Book> books;
 	
 	/**
@@ -111,6 +118,13 @@ public class Person extends CommonEntity {
 		fetch = FetchType.LAZY,
 		mappedBy = "person"
 	)
+	/**
+	 * Чтобы сериализовать поле, то:
+	 * 1) Пишем тут поле которое ссылается на текущую сущность, и "hibernateLazyInitializer" если у нас LAZY-инициализация
+	 * 2) Пишем тут поле которое ссылается на текущую сущность, если у нас EAGER-инициализация
+	 * 3) ЛУЧШИЙ вариант - создавать свои DTO и заполнять их перед отдачей с контроллера
+	 */
+	@JsonIgnoreProperties(value = {"person", "magazine", "hibernateLazyInitializer"})
 	private List<Library> libraries;
 	
 	/**

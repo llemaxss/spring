@@ -1,7 +1,7 @@
 package com.gmail.llemaxiss.spring.library.entity;
 
-import com.gmail.llemaxiss.spring.book.entity.Book;
 import com.gmail.llemaxiss.spring.common.entity.VersionedEntity;
+import com.gmail.llemaxiss.spring.magazine.entity.Magazine;
 import com.gmail.llemaxiss.spring.person.entity.Person;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -14,8 +14,15 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.UUID;
 
+/**
+ * Все, что будет помечено как nullable = false - будет считаться частью id,
+ * поэтому если нужно иметь еще одно не нулевое поле, но которое НЕ явялеется частью id,
+ * то можно пометить спринговой аннотацией @NotNull.
+ * Но если нужно и в БД, то надо вручную создать ограничение, а не через хиберенейт
+ */
 @Entity
 /**
  * Помечаем сущность как неизменяемую
@@ -44,30 +51,38 @@ public class Library extends VersionedEntity {
 	
 	@ManyToOne
 	@JoinColumn(
-		name = Id.BOOK_COL_NAME,
+		name = Id.MAGAZINE_COL_NAME,
 		/**
 		 * Помечаем поле как неизменяемое (только для чтения)
 		 */
 		insertable = false,
 		updatable = false
 	)
-	private Book book;
+	private Magazine magazine;
 	
 	public Library() {
 	}
 	
-	public Library(Person person, Book book) {
+	public Library(Person person, Magazine magazine) {
 		this.person = person;
-		this.book = book;
+		this.magazine = magazine;
 		
 		this.id.personId = person.getId();
-		this.id.bookId = book.getId();
+		this.id.magazineId = magazine.getId();
 		
 		/**
 		 * Гарантирует ссылочную целостность, если отношения двунаправлены
 		 */
+		
+		if (person.getLibraries() == null) {
+			person.setLibraries(new ArrayList<>());
+		}
 		person.getLibraries().add(this);
-		book.getLibraries().add(this);
+		
+		if (magazine.getLibraries() == null) {
+			magazine.setLibraries(new ArrayList<>());
+		}
+		magazine.getLibraries().add(this);
 	}
 	
 	public Id getId() {
@@ -86,31 +101,31 @@ public class Library extends VersionedEntity {
 		this.person = person;
 	}
 	
-	public Book getBook() {
-		return book;
+	public Magazine getMagazine() {
+		return magazine;
 	}
 	
-	public void setBook(Book book) {
-		this.book = book;
+	public void setMagazine(Magazine magazine) {
+		this.magazine = magazine;
 	}
 	
 	@Embeddable
-	private static class Id implements Serializable {
+	public static class Id implements Serializable {
 		public static final String PERSON_COL_NAME = "person_id";
-		public static final String BOOK_COL_NAME = "book_id";
+		public static final String MAGAZINE_COL_NAME = "magazine_id";
 		
 		@Column(name = PERSON_COL_NAME)
 		private UUID personId;
 		
-		@Column(name = BOOK_COL_NAME)
-		private UUID bookId;
+		@Column(name = MAGAZINE_COL_NAME)
+		private UUID magazineId;
 		
 		public Id() {
 		}
 		
-		public Id(UUID personId, UUID bookId) {
+		public Id(UUID personId, UUID magazineId) {
 			this.personId = personId;
-			this.bookId = bookId;
+			this.magazineId = magazineId;
 		}
 		
 		@Override
@@ -119,7 +134,7 @@ public class Library extends VersionedEntity {
 				Id that = (Id) o;
 				
 				return this.personId.equals(that.personId)
-					&& this.bookId.equals(that.bookId);
+					&& this.magazineId.equals(that.magazineId);
 			}
 			
 			return false;
@@ -127,7 +142,7 @@ public class Library extends VersionedEntity {
 		
 		@Override
 		public int hashCode() {
-			return personId.hashCode() + bookId.hashCode();
+			return personId.hashCode() + magazineId.hashCode();
 		}
 	}
 }
