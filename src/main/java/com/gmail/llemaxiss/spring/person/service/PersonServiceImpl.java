@@ -209,6 +209,9 @@ public class PersonServiceImpl implements PersonService {
 	public void hardDelete(@NonNull UUID id) {
 		Person person = findById(id, false);
 
+		person.getLibraries()
+			.forEach(libraryRepository::delete);
+		
 		personRepository.delete(person);
 	}
 

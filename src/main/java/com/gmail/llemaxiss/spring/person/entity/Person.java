@@ -34,6 +34,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Where;
 
@@ -51,7 +52,26 @@ public class Person extends CommonEntity {
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "age")
+	@Column(
+		name = "age"
+		/**
+		 * Вместо аннотации @Check, можно использовать параметр columnDefinition
+		 * (НО, тип переменной в БД нужно указывать вручную, тип переменной из класса не будет использован ?!)
+		*/
+		//, columnDefinition = "integer CHECK (age > 0)"
+	)
+	/**
+	 * Создает кастомное ограничение для поля
+	 * (можно также использовать аннотацию над всем классом)
+	 * Если требуется указать несколько разных ограничений, то можно использваоть @Checks
+	 * и внутри уже в виде массива создавать конкретные ограничения
+	 *
+	 * Все, что указано в constraints будет обернуто в "CHECK (...)"
+	 */
+	@Check(
+		name = "person_age_greater_then_zero",
+		constraints = "age > 0"
+	)
 	private Integer age;
 
 	@Column(name = "active_status")
@@ -253,7 +273,9 @@ public class Person extends CommonEntity {
 	 * Если нужно использовать любой тип времени в качестве ключа,
 	 * то использовать @MapKeyTemporal.
 	 * Если нужно использовать не enum в качестве ключа,
-	 * то использовать аннотацию @MapKeyColumn.
+	 * то использовать аннотацию @MapKeyColumn (для простых классов).
+	 * Если нужно использовать сущность в качестве значения,
+	 * то использовать аннотацию @MapKey
 	 * Если ключ - это сущность, то https://www.baeldung.com/hibernate-persisting-maps
 	 */
 	@ElementCollection
