@@ -24,6 +24,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -46,7 +48,19 @@ import java.util.Map;
 import java.util.Set;
 
 @Entity
-@Table(name = "spring_person")
+@Table(
+	name = "spring_person",
+	indexes = {
+		@Index(
+			name = "person_passport_id_index",
+			columnList = "passport_id"
+		),
+		@Index(
+			name = "person_age_index",
+			columnList = "age"
+		)
+	}
+)
 @Where(clause = "delete_ts IS NULL")
 public class Person extends CommonEntity {
 	@Column(name = "name")
@@ -83,7 +97,18 @@ public class Person extends CommonEntity {
 		name = "passport_id",
 		referencedColumnName = "id",
 		nullable = false,
-		unique = true
+		unique = true,
+		/**
+		 * Изменяет название огрпанчения fkey
+		 */
+		foreignKey = @ForeignKey(
+			name = "person_passport_fkey"
+			/**
+			 * Можно задать собственное определение ограничения в формате:
+			 * FOREIGN KEY ([column]) REFERENCES [table]([column]) ON UPDATE [action]
+			 * для параметра foreignKeyDefinition
+			*/
+		)
 	)
 	/**
 	 * Чтобы сериализовать поле, то:
@@ -156,6 +181,8 @@ public class Person extends CommonEntity {
 	@Embedded
 	/**
 	 * @AttributeOverrides нужен, так как ниже есть еще один объект Address
+	 * Данная аннотация заменяет все определения изначальной колонки
+	 * (включая огранчиения, поэтому их нужно заново указывать в @Column если необходимо)
 	 */
 	@AttributeOverrides({
 		@AttributeOverride(
@@ -189,6 +216,8 @@ public class Person extends CommonEntity {
 	@Embedded
 	/**
 	 * @AttributeOverrides нужен, так как выше есть еще один объект Address
+	 * Данная аннотация заменяет все определения изначальной колонки
+	 * (включая огранчиения, поэтому их нужно заново указывать в @Column если необходимо)
 	 */
 	@AttributeOverrides({
 		@AttributeOverride(
